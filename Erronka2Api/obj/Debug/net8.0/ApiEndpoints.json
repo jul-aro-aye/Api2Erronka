@@ -1,0 +1,360 @@
+[
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "SortuEskaera",
+    "RelativePath": "api/eskaerak",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.EskaeraSortuDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "LortuEskaerak",
+    "RelativePath": "api/eskaerak",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "EzabatuEskaera",
+    "RelativePath": "api/eskaerak/{eskaeraId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "EguneratuEskaera",
+    "RelativePath": "api/eskaerak/{eskaeraId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.EskaeraEguneratuDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "OrdainduEskaera",
+    "RelativePath": "api/eskaerak/{eskaeraId}/ordainduEskaera",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "LortuEskaeraProduktuak",
+    "RelativePath": "api/eskaerak/{eskaeraId}/produktuak",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "SortuFaktura",
+    "RelativePath": "api/eskaerak/{eskaeraId}/sortuFaktura",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "EguneratuSukaldeaEgoera",
+    "RelativePath": "api/eskaerak/{eskaeraId}/sukaldea-egoera",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "eskaeraId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.EskaeraSukaldeaEgoeraDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "LortuMahaiKapazitatea",
+    "RelativePath": "api/eskaerak/mahaiak/{mahaiaId}/kapazitatea",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mahaiaId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.EskaeraKontrollerra",
+    "Method": "LortuEskaerakOrdaintzeko",
+    "RelativePath": "api/eskaerak/ordainketa-pendiente",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.KategoriaKontrollerra",
+    "Method": "LortuKategoriak",
+    "RelativePath": "api/kategoriak",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.KategoriaKontrollerra",
+    "Method": "GehituKategoria",
+    "RelativePath": "api/kategoriak",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.KategoriaDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.KategoriaKontrollerra",
+    "Method": "LortuKategoria",
+    "RelativePath": "api/kategoriak/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.KategoriaKontrollerra",
+    "Method": "EguneratuKategoria",
+    "RelativePath": "api/kategoriak/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.KategoriaDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.KategoriaKontrollerra",
+    "Method": "EzabatuKategoria",
+    "RelativePath": "api/kategoriak/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.LoginKontrollera",
+    "Method": "Login",
+    "RelativePath": "api/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.LoginDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.MahaiakController",
+    "Method": "LortuMahaiBat",
+    "RelativePath": "api/mahaiak/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.MahaiakController",
+    "Method": "LortuMahaiLibre",
+    "RelativePath": "api/mahaiak/libre",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.ProduktuakKontrollera",
+    "Method": "LortuProduktuak",
+    "RelativePath": "api/produktuak",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.ProduktuakKontrollera",
+    "Method": "GehituProduktua",
+    "RelativePath": "api/produktuak",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.ProduktuaDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.ProduktuakKontrollera",
+    "Method": "LortuProduktua",
+    "RelativePath": "api/produktuak/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.ProduktuakKontrollera",
+    "Method": "EguneratuProduktua",
+    "RelativePath": "api/produktuak/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "ErronkaApi.DTOak.ProduktuaDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ErronkaApi.Kontrollerrak.ProduktuakKontrollera",
+    "Method": "EzabatuProduktua",
+    "RelativePath": "api/produktuak/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
