@@ -1,9 +1,0 @@
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.csproj.AssemblyReference.cache
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\rpswa.dswa.cache.json
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.AssemblyInfoInputs.cache
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.AssemblyInfo.cs
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.csproj.CoreCompileInputs.cache
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Mirari\Desktop\Multiplataforma\2Kurtxoa\Erronkak\2Erronka\ErronkaApi\obj\Debug\net8.0\Erronka2Api.sourcelink.json
