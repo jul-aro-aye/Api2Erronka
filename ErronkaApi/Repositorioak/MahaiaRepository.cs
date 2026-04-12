@@ -16,7 +16,26 @@ namespace ErronkaApi.Repositorioak
 
         public MahaiaRepository() { }
 
-        public virtual (bool success, string? error, List<MahaiaDTO>? data) LortuMahaiLibre()
+public virtual (bool success, string? error, List<MahaiaDTO>? data) LortuMahaiak()
+{
+    try
+    {
+        using var session = _sessionFactory.OpenSession();
+
+        var lista = session.Query<Mahaia>()
+            .OrderBy(m => m.zenbakia)
+            .Select(MapToDTO)
+            .ToList();
+
+        return (true, null, lista);
+    }
+    catch (Exception ex)
+    {
+        return (false, ex.Message, null);
+    }
+}
+
+        public (bool success, string? error, List<MahaiaDTO>? data) LortuMahaiLibre()
         {
             try
             {
@@ -59,7 +78,8 @@ namespace ErronkaApi.Repositorioak
             {
                 Id = m.id,
                 Zenbakia = m.zenbakia,
-                kapazitatea = m.kapazitatea
+                kapazitatea = m.kapazitatea > 0 ? m.kapazitatea : 0,
+                Egoera = m.egoera
             };
         }
     }

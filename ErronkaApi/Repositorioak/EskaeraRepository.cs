@@ -36,7 +36,7 @@ namespace ErronkaApi.Repositorioak
             {
                 Id = e.id,
                 Izena = $"Eskaera #{e.id}",
-                MahaiaId = e.mahaia_id,
+                MahaiaId = e.mahaia_id ?? 0,
                 Komensalak = e.komensalak,
                 Data = e.sortzeData.ToString("yyyy-MM-dd HH:mm"),
                 SukaldeaEgoera = e.sukaldeaEgoera
@@ -66,6 +66,17 @@ namespace ErronkaApi.Repositorioak
                 if (mahaia == null)
                     return (false, "Mahaia ez da aurkitu", null, null);
 
+                if (dto.ErreserbaId.HasValue)
+                {
+                    var erreserba = session.Get<Erreserba>(dto.ErreserbaId.Value);
+
+                    if (erreserba == null)
+                        return (false, "Erreserba ez da aurkitu", null, null);
+
+                    if (erreserba.mahaiaId != dto.MahaiaId)
+                        return (false, "Erreserba ez dator bat aukeratutako mahaiarekin", null, null);
+                }
+
                 mahaia.egoera = "okupatuta";
                 session.Update(mahaia);
 
@@ -74,6 +85,12 @@ namespace ErronkaApi.Repositorioak
                 foreach (var p in dto.Produktuak)
                 {
                     var produktua = GetProduktua(session, p.ProduktuaId);
+                    if (produktua == null)
+                    {
+                        faltan.Add($"Produktua {p.ProduktuaId}");
+                        continue;
+                    }
+
                     if (produktua.stock_aktuala < p.Kantitatea)
                         faltan.Add(produktua.izena);
                 }
@@ -86,16 +103,26 @@ namespace ErronkaApi.Repositorioak
                     erabiltzaileId = dto.ErabiltzaileId,
                     komensalak = dto.Komensalak,
                     egoera = "irekita",
-                    sukaldeaEgoera = "zain",
+                    sukaldeaEgoera = "bidalita",
                     sortzeData = DateTime.Now,
-                    mahaia_id = dto.MahaiaId
+                    mahaia_id = dto.MahaiaId,
+                    erreserbaId = dto.ErreserbaId
                 };
 
                 session.Save(eskaera);
 
+                session.Save(new EskaeraMahaiak
+                {
+                    Eskaera = eskaera,
+                    Mahaia = mahaia
+                });
+
                 foreach (var p in dto.Produktuak)
                 {
                     var produktua = GetProduktua(session, p.ProduktuaId);
+                    if (produktua == null)
+                        continue;
+
                     produktua.stock_aktuala -= p.Kantitatea;
                     session.Update(produktua);
 
@@ -108,6 +135,20 @@ namespace ErronkaApi.Repositorioak
                         Guztira = produktua.prezioa * p.Kantitatea
                     });
                 }
+
+                var guztira = dto.Produktuak.Sum(p =>
+                {
+                    var produktua = GetProduktua(session, p.ProduktuaId);
+                    return produktua == null ? 0 : produktua.prezioa * p.Kantitatea;
+                });
+
+                session.Save(new Faktura
+                {
+                    eskaeraId = eskaera.id,
+                    pdfIzena = string.Empty,
+                    data = DateTime.Now,
+                    guztira = guztira
+                });
 
                 tx.Commit();
                 return (true, null, eskaera.id, null);
@@ -185,6 +226,23 @@ namespace ErronkaApi.Repositorioak
                     produktua.stock_aktuala += ep.Kantitatea;
                     session.Update(produktua);
                     session.Delete(ep);
+                }
+
+                var fakturak = session.Query<Faktura>()
+                    .Where(f => f.eskaeraId == eskaeraId)
+                    .ToList();
+
+                foreach (var faktura in fakturak)
+                    session.Delete(faktura);
+
+                if (eskaera.mahaia_id.HasValue)
+                {
+                    var mahaia = GetMahaia(session, eskaera.mahaia_id.Value);
+                    if (mahaia != null)
+                    {
+                        mahaia.egoera = "libre";
+                        session.Update(mahaia);
+                    }
                 }
 
                 session.Delete(eskaera);
@@ -307,10 +365,7 @@ namespace ErronkaApi.Repositorioak
                 var produktuak = session.Query<EskaeraProduktuak>()
                     .Where(p => p.Eskaera.id == eskaeraId)
                     .ToList();
-
-                var mahaiak = session.Query<Mahaia>()
-                    .Where(m => m.EskaeraMahaiak.Any(em => em.Eskaera.id == eskaeraId))
-                    .ToList();
+                decimal total = 0;
 
                 string escritorio = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 string carpetaFakturak = Path.Combine(escritorio, "fakturak");
@@ -338,8 +393,6 @@ namespace ErronkaApi.Repositorioak
                     doc.Add(new iTextSharp.text.Paragraph($"Faktura #: {eskaeraId}", normalFont) { Alignment = iTextSharp.text.Element.ALIGN_CENTER, SpacingAfter = 5f });
                     doc.Add(new iTextSharp.text.Paragraph($"Mahaia: {eskaera.mahaia_id}   Data: {eskaera.sortzeData:dd/MM/yyyy HH:mm}", normalFont) { SpacingAfter = 5f });
 
-                    decimal total = 0;
-
                     foreach (var p in produktuak)
                     {
                         string produktuIzena = p.Produktua?.izena ?? "Ezezaguna";
@@ -363,14 +416,35 @@ namespace ErronkaApi.Repositorioak
                     doc.Close();
                 }
 
+                var faktura = session.Query<Faktura>()
+                    .FirstOrDefault(f => f.eskaeraId == eskaeraId);
+
+                if (faktura == null)
+                {
+                    faktura = new Faktura
+                    {
+                        eskaeraId = eskaeraId
+                    };
+                }
+
+                faktura.pdfIzena = filename;
+                faktura.data = DateTime.Now;
+                faktura.guztira = total;
+
+                session.SaveOrUpdate(faktura);
+
                 eskaera.egoera = "itxita";
                 eskaera.itxieraData = DateTime.Now;
                 session.Update(eskaera);
 
-                foreach (var m in mahaiak)
+                if (eskaera.mahaia_id.HasValue)
                 {
-                    m.egoera = "libre";
-                    session.Update(m);
+                    var mahaia = GetMahaia(session, eskaera.mahaia_id.Value);
+                    if (mahaia != null)
+                    {
+                        mahaia.egoera = "libre";
+                        session.Update(mahaia);
+                    }
                 }
 
                 tx.Commit();
