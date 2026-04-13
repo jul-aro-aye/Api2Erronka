@@ -6,6 +6,8 @@
         public int MahaiaId { get; set; }
         public int Komensalak { get; set; }
         public int? ErreserbaId { get; set; }
+        public DateTime? Data { get; set; }
+        public string? Txanda { get; set; }
         public List<EskaeraProduktuaSortuDTO> Produktuak { get; set; }
     }
 
