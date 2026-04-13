@@ -78,7 +78,7 @@ namespace ErronkaApi.Repositorioak
                     telefonoa = dto.Telefonoa,
                     data = DateTime.Today,
                     erreserbaData = dto.Data.Date,
-                    txanda = NormalizeTxanda(dto.Txanda),
+                    txanda = TxandaNormalizatu(dto.Txanda),
                     pertsonaKopurua = dto.PertsonaKopurua,
                     egoera = string.IsNullOrWhiteSpace(dto.Egoera) ? "sortua" : dto.Egoera
                 };
@@ -128,7 +128,7 @@ namespace ErronkaApi.Repositorioak
                 erreserba.bezeroaIzena = dto.Izena;
                 erreserba.telefonoa = dto.Telefonoa;
                 erreserba.erreserbaData = dto.Data.Date;
-                erreserba.txanda = NormalizeTxanda(dto.Txanda);
+                erreserba.txanda = TxandaNormalizatu(dto.Txanda);
                 erreserba.pertsonaKopurua = dto.PertsonaKopurua;
 
                 if (!string.IsNullOrWhiteSpace(dto.Egoera))
@@ -186,7 +186,7 @@ namespace ErronkaApi.Repositorioak
                 if (mahaia.kapazitatea < erreserba.pertsonaKopurua)
                     return (false, "Mahaia txikiegia da erreserbarentzat", null);
 
-                var txandaNormalizatua = NormalizeTxanda(erreserba.txanda);
+                var txandaNormalizatua = TxandaNormalizatu(erreserba.txanda);
                 var besteErreserbaBat = session.Query<Erreserba>()
                     .FirstOrDefault(e =>
                         e.id != erreserbaId &&
@@ -196,7 +196,7 @@ namespace ErronkaApi.Repositorioak
                         e.egoera != "bertan_behera");
 
                 if (besteErreserbaBat != null)
-                    return (false, "Mahaia jada erreserbatuta dago data eta txanda horretan", null);
+                    return (false, "Mahai hori erreserbatuta dago data eta txanda horretan", null);
 
                 erreserba.mahaiaId = mahaiaId;
                 session.Update(erreserba);
@@ -235,7 +235,7 @@ namespace ErronkaApi.Repositorioak
             if (mahaia.kapazitatea < dto.PertsonaKopurua)
                 return (false, "Mahaia txikiegia da pertsona kopuru horretarako", null);
 
-            var txandaNormalizatua = NormalizeTxanda(dto.Txanda);
+            var txandaNormalizatua = TxandaNormalizatu(dto.Txanda);
             var query = session.Query<Erreserba>()
                 .Where(e =>
                     e.mahaiaId == dto.MahaiaId &&
@@ -249,7 +249,7 @@ namespace ErronkaApi.Repositorioak
             var erreserbaExistentea = query.FirstOrDefault();
 
             if (erreserbaExistentea != null)
-                return (false, "Mahaia jada erreserbatuta dago data eta txanda horretan", null);
+                return (false, "Mahai hori erreserbatuta dago data eta txanda horretan", null);
 
             return (true, null, mahaia);
         }
@@ -280,14 +280,14 @@ namespace ErronkaApi.Repositorioak
                 MahaiaId = erreserba.mahaiaId,
                 Izena = erreserba.bezeroaIzena,
                 Telefonoa = erreserba.telefonoa,
-                Txanda = FormatTxanda(erreserba.txanda),
+                Txanda = TxandaFormateatu(erreserba.txanda),
                 PertsonaKopurua = erreserba.pertsonaKopurua,
                 Data = erreserba.erreserbaData,
                 Egoera = erreserba.egoera
             };
         }
 
-        private static string NormalizeTxanda(string? txanda)
+        private static string TxandaNormalizatu(string? txanda)
         {
             if (string.Equals(txanda, "Afaria", StringComparison.OrdinalIgnoreCase))
                 return "afaria";
@@ -295,7 +295,7 @@ namespace ErronkaApi.Repositorioak
             return "bazkaria";
         }
 
-        private static string FormatTxanda(string? txanda)
+        private static string TxandaFormateatu(string? txanda)
         {
             if (string.Equals(txanda, "afaria", StringComparison.OrdinalIgnoreCase))
                 return "Afaria";
