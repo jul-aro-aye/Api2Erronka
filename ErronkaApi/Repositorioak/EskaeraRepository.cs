@@ -4,6 +4,7 @@ using NHibernate.Linq;
 using NHSession = NHibernate.ISession;
 using NHFactory = NHibernate.ISessionFactory;
 using NHibernate;
+using System.Runtime.InteropServices;
 
 namespace ErronkaApi.Repositorioak
 {
@@ -758,7 +759,13 @@ namespace ErronkaApi.Repositorioak
                     {
                         mahaia.egoera = "libre";
                         session.Update(mahaia);
+
+                        
                     }
+
+                    
+
+
                 }
 
                 tx.Commit();
