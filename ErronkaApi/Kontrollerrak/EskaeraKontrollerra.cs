@@ -62,9 +62,12 @@ namespace ErronkaApi.Kontrollerrak
         }
 
         [HttpGet("mahaia/{mahaiaId}/aktiboa")]
-        public IActionResult LortuEskaeraAktiboaMahaika(int mahaiaId)
+        public IActionResult LortuEskaeraAktiboaMahaika(
+            int mahaiaId,
+            [FromQuery] DateTime? data = null,
+            [FromQuery] string? txanda = null)
         {
-            var (success, error, data) = _repo.LortuEskaeraAktiboaMahaika(mahaiaId);
+            var (success, error, dataResult) = _repo.LortuEskaeraAktiboaMahaika(mahaiaId, data, txanda);
 
             if (!success)
             {
@@ -80,7 +83,7 @@ namespace ErronkaApi.Kontrollerrak
             {
                 Code = 200,
                 Message = "Eskaera lortu da",
-                Datuak = new List<EskaeraDTO> { data! }
+                Datuak = new List<EskaeraDTO> { dataResult! }
             });
         }
 

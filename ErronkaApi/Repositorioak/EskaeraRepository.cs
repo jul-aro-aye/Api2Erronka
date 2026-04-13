@@ -25,13 +25,84 @@ namespace ErronkaApi.Repositorioak
         private Mahaia? GetMahaia(NHSession session, int id)
             => session.Get<Mahaia>(id);
 
-        private Eskaera? GetEskaeraAktiboaMahaiarentzat(NHSession session, int mahaiaId)
-            => session.Query<Eskaera>()
+        private static string NormalizeTxanda(string? txanda)
+        {
+            if (string.Equals(txanda, "Afaria", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(txanda, "afaria", StringComparison.OrdinalIgnoreCase))
+                return "afaria";
+
+            return "bazkaria";
+        }
+
+        private static string FormatTxanda(string? txanda)
+        {
+            return string.Equals(txanda, "afaria", StringComparison.OrdinalIgnoreCase)
+                ? "Afaria"
+                : "Bazkaria";
+        }
+
+        private static string InferituTxanda(DateTime data)
+        {
+            return data.Hour >= 18 ? "afaria" : "bazkaria";
+        }
+
+        private string LortuEskaerarenTxanda(NHSession session, Eskaera eskaera)
+        {
+            if (eskaera.erreserbaId.HasValue)
+            {
+                var erreserba = session.Get<Erreserba>(eskaera.erreserbaId.Value);
+                if (erreserba != null)
+                    return NormalizeTxanda(erreserba.txanda);
+            }
+
+            return InferituTxanda(eskaera.sortzeData);
+        }
+
+        private bool EskaeraDagokioDataTxandari(
+            NHSession session,
+            Eskaera eskaera,
+            DateTime data,
+            string txanda)
+        {
+            var dataHelburua = data.Date;
+            var txandaNormalizatua = NormalizeTxanda(txanda);
+
+            if (eskaera.erreserbaId.HasValue)
+            {
+                var erreserba = session.Get<Erreserba>(eskaera.erreserbaId.Value);
+                if (erreserba != null)
+                {
+                    return erreserba.erreserbaData.Date == dataHelburua &&
+                           NormalizeTxanda(erreserba.txanda) == txandaNormalizatua;
+                }
+            }
+
+            return eskaera.sortzeData.Date == dataHelburua &&
+                   InferituTxanda(eskaera.sortzeData) == txandaNormalizatua;
+        }
+
+        private Eskaera? GetEskaeraAktiboaMahaiarentzat(
+            NHSession session,
+            int mahaiaId,
+            DateTime? data = null,
+            string? txanda = null)
+        {
+            var eskaerak = session.Query<Eskaera>()
                 .Where(e =>
                     e.mahaia_id == mahaiaId &&
                     (e.egoera == "irekita" || e.egoera == "ordainketa_pendiente"))
                 .OrderByDescending(e => e.sortzeData)
-                .FirstOrDefault();
+                .ToList();
+
+            if (!data.HasValue)
+                return eskaerak.FirstOrDefault();
+
+            var dataErabilgarria = data.Value.Date;
+            var txandaErabilgarria = NormalizeTxanda(txanda);
+
+            return eskaerak.FirstOrDefault(e =>
+                EskaeraDagokioDataTxandari(session, e, dataErabilgarria, txandaErabilgarria));
+        }
 
         private sealed class OsagaiBeharra
         {
@@ -243,7 +314,7 @@ namespace ErronkaApi.Repositorioak
             session.SaveOrUpdate(faktura);
         }
 
-        private EskaeraDTO MapToEskaeraDTO(Eskaera e)
+        private EskaeraDTO MapToEskaeraDTO(NHSession session, Eskaera e)
         {
             return new EskaeraDTO
             {
@@ -252,6 +323,7 @@ namespace ErronkaApi.Repositorioak
                 MahaiaId = e.mahaia_id ?? 0,
                 Komensalak = e.komensalak,
                 Data = e.sortzeData.ToString("yyyy-MM-dd HH:mm"),
+                Txanda = FormatTxanda(LortuEskaerarenTxanda(session, e)),
                 SukaldeaEgoera = e.sukaldeaEgoera
             };
         }
@@ -290,7 +362,11 @@ namespace ErronkaApi.Repositorioak
                         return (false, "Erreserba ez dator bat aukeratutako mahaiarekin", null, null);
                 }
 
-                var eskaeraAktiboa = GetEskaeraAktiboaMahaiarentzat(session, dto.MahaiaId);
+                var eskaeraAktiboa = GetEskaeraAktiboaMahaiarentzat(
+                    session,
+                    dto.MahaiaId,
+                    dto.Data,
+                    dto.Txanda);
 
                 var (faltan, produktuEskariak, osagaiEskariak) = BalidatuEskariaStockarekin(
                     session,
@@ -365,7 +441,8 @@ namespace ErronkaApi.Repositorioak
                 var lista = session.Query<Eskaera>()
                     .Where(e => e.egoera == "irekita")
                     .OrderByDescending(e => e.sortzeData)
-                    .Select(MapToEskaeraDTO)
+                    .ToList()
+                    .Select(e => MapToEskaeraDTO(session, e))
                     .ToList();
 
                 return (true, null, lista);
@@ -377,17 +454,17 @@ namespace ErronkaApi.Repositorioak
         }
 
         public (bool success, string? error, EskaeraDTO? data)
-            LortuEskaeraAktiboaMahaika(int mahaiaId)
+            LortuEskaeraAktiboaMahaika(int mahaiaId, DateTime? data = null, string? txanda = null)
         {
             try
             {
                 using var session = _sessionFactory.OpenSession();
-                var eskaera = GetEskaeraAktiboaMahaiarentzat(session, mahaiaId);
+                var eskaera = GetEskaeraAktiboaMahaiarentzat(session, mahaiaId, data, txanda);
 
                 if (eskaera == null)
                     return (false, "Eskaera ez da aurkitu", null);
 
-                return (true, null, MapToEskaeraDTO(eskaera));
+                return (true, null, MapToEskaeraDTO(session, eskaera));
             }
             catch (Exception ex)
             {
@@ -698,7 +775,8 @@ namespace ErronkaApi.Repositorioak
 
                 var lista = session.Query<Eskaera>()
                     .Where(e => e.egoera == "ordainketa_pendiente")
-                    .Select(MapToEskaeraDTO)
+                    .ToList()
+                    .Select(e => MapToEskaeraDTO(session, e))
                     .ToList();
 
                 return (true, null, lista);

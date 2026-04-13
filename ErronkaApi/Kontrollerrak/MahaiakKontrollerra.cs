@@ -16,9 +16,9 @@ namespace ErronkaApi.Kontrollerrak
         }
 
         [HttpGet]
-        public IActionResult LortuMahaiak()
+        public IActionResult LortuMahaiak([FromQuery] DateTime? data = null, [FromQuery] string? txanda = null)
         {
-            var (success, error, data) = _repo.LortuMahaiak();
+            var (success, error, dataResult) = _repo.LortuMahaiak(data, txanda);
 
             if (!success)
                 return StatusCode(500, new ErantzunaDTO<string> { Code = 500, Message = error });
@@ -27,33 +27,33 @@ namespace ErronkaApi.Kontrollerrak
             {
                 Code = 200,
                 Message = "Mahaiak lortu dira",
-                Datuak = data
+                Datuak = dataResult
             });
         }
 
         [HttpGet("libre")]
-        public IActionResult LortuMahaiLibre()
+        public IActionResult LortuMahaiLibre([FromQuery] DateTime? data = null, [FromQuery] string? txanda = null)
         {
-            var (success, error, data) = _repo.LortuMahaiLibre();
+            var (success, error, dataResult) = _repo.LortuMahaiLibre(data, txanda);
 
             if (!success)
                 return StatusCode(500, new ErantzunaDTO<string> { Code = 500, Message = error });
 
-            if (data == null || !data.Any())
+            if (dataResult == null || !dataResult.Any())
                 return NotFound(new ErantzunaDTO<string> { Code = 404, Message = "Ez dago mahai librerik" });
 
             return Ok(new ErantzunaDTO<MahaiaDTO>
             {
                 Code = 200,
                 Message = "Mahai libreak lortu dira",
-                Datuak = data
+                Datuak = dataResult
             });
         }
 
         [HttpGet("{id}")]
-        public IActionResult LortuMahaiBat(int id)
+        public IActionResult LortuMahaiBat(int id, [FromQuery] DateTime? data = null, [FromQuery] string? txanda = null)
         {
-            var (success, error, data) = _repo.LortuMahaiBat(id);
+            var (success, error, dataResult) = _repo.LortuMahaiBat(id, data, txanda);
 
             if (!success)
                 return NotFound(new ErantzunaDTO<string> { Code = 404, Message = error });
@@ -62,7 +62,7 @@ namespace ErronkaApi.Kontrollerrak
             {
                 Code = 200,
                 Message = "Mahaia lortu da",
-                Datuak = new List<MahaiaDTO> { data! }
+                Datuak = new List<MahaiaDTO> { dataResult! }
             });
         }
     }
