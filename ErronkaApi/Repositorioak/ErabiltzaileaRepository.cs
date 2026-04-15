@@ -37,5 +37,27 @@ namespace ErronkaApi.Repositorioak
                 return (false, ex.Message, null);
             }
         }
+
+        public virtual (bool success, bool exists, string? error, bool txat) LortuTxatBaimena(int erabiltzaileId)
+        {
+            try
+            {
+                using var session = _sessionFactory.OpenSession();
+
+                var user = session.Query<Erabiltzailea>()
+                    .FirstOrDefault(e =>
+                        e.id == erabiltzaileId &&
+                        !e.ezabatua);
+
+                if (user == null)
+                    return (true, false, null, false);
+
+                return (true, true, null, user.txat);
+            }
+            catch (Exception ex)
+            {
+                return (false, false, ex.Message, false);
+            }
+        }
     }
 }

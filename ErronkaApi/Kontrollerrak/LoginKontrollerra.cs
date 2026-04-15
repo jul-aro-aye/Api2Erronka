@@ -46,5 +46,36 @@ namespace ErronkaApi.Kontrollerrak
                 Datuak = new List<object> { datuak }
             });
         }
+
+        [HttpGet("{erabiltzaileId}/txat")]
+        public IActionResult LortuTxatBaimena(int erabiltzaileId)
+        {
+            var (success, exists, error, txat) = _repo.LortuTxatBaimena(erabiltzaileId);
+
+            if (!success)
+            {
+                return StatusCode(500, new ErantzunaDTO<string>
+                {
+                    Code = 500,
+                    Message = error
+                });
+            }
+
+            if (!exists)
+            {
+                return NotFound(new ErantzunaDTO<string>
+                {
+                    Code = 404,
+                    Message = "Erabiltzailea ez da aurkitu"
+                });
+            }
+
+            return Ok(new ErantzunaDTO<bool>
+            {
+                Code = 200,
+                Message = "Txat baimena lortu da",
+                Datuak = new List<bool> { txat }
+            });
+        }
     }
 }

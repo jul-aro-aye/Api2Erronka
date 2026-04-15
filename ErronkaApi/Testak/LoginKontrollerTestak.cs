@@ -91,5 +91,72 @@ namespace ErronkaApi.Testak
             Assert.Equal("Erabiltzailea edo pasahitza okerra", body.Message);
             Assert.Null(body.Datuak);
         }
+
+        [Fact]
+        public void LortuTxatBaimena_ErabiltzaileaExistitzenBada_OkItzuliBeharDu()
+        {
+            // Arrange
+            var mockRepo = new Mock<ErabiltzaileaRepository>();
+            mockRepo.Setup(r => r.LortuTxatBaimena(4))
+                    .Returns((true, true, null, true));
+
+            var controller = new LoginKontrollera(mockRepo.Object);
+
+            // Act
+            var result = controller.LortuTxatBaimena(4);
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result);
+            var body = Assert.IsType<ErantzunaDTO<bool>>(ok.Value);
+
+            Assert.Equal(200, body.Code);
+            Assert.Equal("Txat baimena lortu da", body.Message);
+            Assert.NotNull(body.Datuak);
+            Assert.Single(body.Datuak);
+            Assert.True(body.Datuak![0]);
+        }
+
+        [Fact]
+        public void LortuTxatBaimena_ErabiltzaileaEzBadago_NotFoundItzuliBeharDu()
+        {
+            // Arrange
+            var mockRepo = new Mock<ErabiltzaileaRepository>();
+            mockRepo.Setup(r => r.LortuTxatBaimena(99))
+                    .Returns((true, false, null, false));
+
+            var controller = new LoginKontrollera(mockRepo.Object);
+
+            // Act
+            var result = controller.LortuTxatBaimena(99);
+
+            // Assert
+            var notFound = Assert.IsType<NotFoundObjectResult>(result);
+            var body = Assert.IsType<ErantzunaDTO<string>>(notFound.Value);
+
+            Assert.Equal(404, body.Code);
+            Assert.Equal("Erabiltzailea ez da aurkitu", body.Message);
+        }
+
+        [Fact]
+        public void LortuTxatBaimena_ErroreaBadago_500ItzuliBeharDu()
+        {
+            // Arrange
+            var mockRepo = new Mock<ErabiltzaileaRepository>();
+            mockRepo.Setup(r => r.LortuTxatBaimena(4))
+                    .Returns((false, false, "DB errorea", false));
+
+            var controller = new LoginKontrollera(mockRepo.Object);
+
+            // Act
+            var result = controller.LortuTxatBaimena(4);
+
+            // Assert
+            var error = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, error.StatusCode);
+
+            var body = Assert.IsType<ErantzunaDTO<string>>(error.Value);
+            Assert.Equal(500, body.Code);
+            Assert.Equal("DB errorea", body.Message);
+        }
     }
 }
