@@ -37,5 +37,24 @@ namespace ErronkaApi.Repositorioak
                 return (false, ex.Message, null);
             }
         }
+
+        public virtual (bool success, string? error, List<Erabiltzailea>? users) LortuAktiboak()
+        {
+            try
+            {
+                using var session = _sessionFactory.OpenSession();
+
+                var users = session.Query<Erabiltzailea>()
+                    .Where(e => !e.ezabatua)
+                    .OrderBy(e => e.erabiltzailea)
+                    .ToList();
+
+                return (true, null, users);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
     }
 }
