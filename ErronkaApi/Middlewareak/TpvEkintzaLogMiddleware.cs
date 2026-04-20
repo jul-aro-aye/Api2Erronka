@@ -4,7 +4,10 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ErronkaApi.Logak;
+using ErronkaApi.Modeloak;
 using Microsoft.AspNetCore.Http;
+using NHibernate;
+using NHibernate.Linq;
 
 namespace ErronkaApi.Middlewareak
 {
@@ -12,11 +15,13 @@ namespace ErronkaApi.Middlewareak
     {
         private readonly RequestDelegate _next;
         private readonly Log _log;
+        private readonly ISessionFactory _sessionFactory;
 
-        public TpvEkintzaLogMiddleware(RequestDelegate next, Log log)
+        public TpvEkintzaLogMiddleware(RequestDelegate next, Log log, ISessionFactory sessionFactory)
         {
             _next = next;
             _log = log;
+            _sessionFactory = sessionFactory;
         }
 
         public async Task Invoke(HttpContext context)
@@ -28,7 +33,7 @@ namespace ErronkaApi.Middlewareak
             }
 
             string body = await IrakurriBodya(context.Request);
-            string erabiltzailea = LortuErabiltzailea(context, body);
+            string erabiltzailea = LortuErabiltzailea(context, body, _sessionFactory);
 
             try
             {
@@ -66,7 +71,7 @@ namespace ErronkaApi.Middlewareak
             return body;
         }
 
-        private static string LortuErabiltzailea(HttpContext context, string body)
+        private static string LortuErabiltzailea(HttpContext context, string body, ISessionFactory sessionFactory)
         {
             string? erabiltzaileaHeader = LortuHeaderretik(context, "X-TPV-User", "X-Erabiltzailea", "X-User");
             if (!string.IsNullOrWhiteSpace(erabiltzaileaHeader))
@@ -79,11 +84,11 @@ namespace ErronkaApi.Middlewareak
                     return queryBalioa;
             }
 
-            string? erabiltzaileaBody = LortuErabiltzaileaBodytik(body);
+            string? erabiltzaileaBody = LortuErabiltzaileaBodytik(body, sessionFactory);
             if (!string.IsNullOrWhiteSpace(erabiltzaileaBody))
                 return erabiltzaileaBody;
 
-            return "ezezaguna";
+            return "erabiltzaile ezezaguna";
         }
 
         private static string? LortuHeaderretik(HttpContext context, params string[] headerIzenak)
@@ -150,13 +155,13 @@ namespace ErronkaApi.Middlewareak
             if (method == "POST")
             {
                 string erabiltzailea = LortuString(bodyJson, "erabiltzailea", "username") ?? "ezezaguna";
-                return $"Saioa hasi da. Erabiltzailea: {erabiltzailea}";
+                return $"Saioa hasi du sisteman. Erabiltzailea: {erabiltzailea}";
             }
 
             if (method == "GET" && segmentuak.Length >= 4 && segmentuak[3].Equals("txat", StringComparison.OrdinalIgnoreCase))
-                return $"Txat baimena kontsultatuta. Erabiltzailea ID: {segmentuak[2]}";
+                return $"Txat baimena kontsultatu da. Erabiltzaile IDa: {segmentuak[2]}";
 
-            return "Login ekintza eginda";
+            return "Loginarekin lotutako ekintza egin da";
         }
 
         private static string SortuMahaiMezua(string method, string[] segmentuak, HttpContext context, int statusCode)
@@ -165,22 +170,22 @@ namespace ErronkaApi.Middlewareak
             {
                 string xehetasunak = LortuDataTxanda(context);
                 return string.IsNullOrWhiteSpace(xehetasunak)
-                    ? "Mahai zerrenda kontsultatuta"
-                    : $"Mahai zerrenda kontsultatuta ({xehetasunak})";
+                    ? "Mahai zerrenda kontsultatu da"
+                    : $"Mahai zerrenda kontsultatu da ({xehetasunak})";
             }
 
             if (method == "GET" && segmentuak.Length >= 3 && segmentuak[2].Equals("libre", StringComparison.OrdinalIgnoreCase))
-                return statusCode == 404 ? "Ez dago mahai librerik" : "Mahai libreak kontsultatuta";
+                return statusCode == 404 ? "Ez dago mahai librerik une honetan" : "Mahai libreak kontsultatu dira";
 
             if (method == "GET" && segmentuak.Length >= 3)
             {
                 string xehetasunak = LortuDataTxanda(context);
                 return string.IsNullOrWhiteSpace(xehetasunak)
-                    ? $"Mahaia aukeratua. Mahaia ID: {segmentuak[2]}"
-                    : $"Mahaia aukeratua. Mahaia ID: {segmentuak[2]} ({xehetasunak})";
+                    ? $"Mahaiaren informazioa kontsultatu da. Mahaia IDa: {segmentuak[2]}"
+                    : $"Mahaiaren informazioa kontsultatu da. Mahaia IDa: {segmentuak[2]} ({xehetasunak})";
             }
 
-            return "Mahai ekintza eginda";
+            return "Mahaiekin lotutako ekintza egin da";
         }
 
         private static string SortuEskaeraMezua(
@@ -203,51 +208,51 @@ namespace ErronkaApi.Middlewareak
 
                 string xehetasunak = string.Join(", ", zatiak);
                 return string.IsNullOrWhiteSpace(xehetasunak)
-                    ? "Eskaera gorde da"
-                    : $"Eskaera gorde da. {xehetasunak}";
+                    ? "Eskaera berria sortu da"
+                    : $"Eskaera berria sortu da. {xehetasunak}";
             }
 
             if (method == "GET" && segmentuak.Length == 2)
-                return "Eskaera aktiboak kontsultatuta";
+                return "Eskaera aktiboak kontsultatu dira";
 
             if (method == "GET" && segmentuak.Length >= 5 &&
                 segmentuak[2].Equals("mahaia", StringComparison.OrdinalIgnoreCase) &&
                 segmentuak[4].Equals("aktiboa", StringComparison.OrdinalIgnoreCase))
             {
                 return statusCode == 404
-                    ? $"Ez dago eskaera aktiborik. Mahaia: {segmentuak[3]}"
-                    : $"Eskaera aktiboa aukeratua. Mahaia: {segmentuak[3]}";
+                    ? $"Mahai honek ez dauka eskaera aktiborik. Mahaia: {segmentuak[3]}"
+                    : $"Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: {segmentuak[3]}";
             }
 
             if (method == "GET" && segmentuak.Length >= 4 &&
                 segmentuak[3].Equals("produktuak", StringComparison.OrdinalIgnoreCase))
             {
-                return $"Eskaeraren produktuak kontsultatuta. Eskaera ID: {segmentuak[2]}";
+                return $"Eskaeraren produktuak kontsultatu dira. Eskaera IDa: {segmentuak[2]}";
             }
 
             if (method == "GET" && segmentuak.Length >= 5 &&
                 segmentuak[2].Equals("mahaiak", StringComparison.OrdinalIgnoreCase) &&
                 segmentuak[4].Equals("kapazitatea", StringComparison.OrdinalIgnoreCase))
             {
-                return $"Mahaiko kapazitatea kontsultatuta. Mahaia ID: {segmentuak[3]}";
+                return $"Mahaiaren kapazitatea kontsultatu da. Mahaia IDa: {segmentuak[3]}";
             }
 
             if (method == "GET" && segmentuak.Length >= 3 &&
                 segmentuak[2].Equals("ordainketa-pendiente", StringComparison.OrdinalIgnoreCase))
             {
-                return "Ordainketa pendiente dauden eskaerak kontsultatuta";
+                return "Ordainketa pendiente dauden eskaerak kontsultatu dira";
             }
 
             if (method == "DELETE" && segmentuak.Length >= 3)
-                return $"Eskaera ezabatu da. Eskaera ID: {segmentuak[2]}";
+                return $"Eskaera ezabatu da. Eskaera IDa: {segmentuak[2]}";
 
             if (method == "PUT" && segmentuak.Length >= 4 &&
                 segmentuak[3].Equals("sukaldea-egoera", StringComparison.OrdinalIgnoreCase))
             {
                 string? egoera = LortuString(bodyJson, "SukaldeaEgoera", "sukaldeaEgoera");
                 return string.IsNullOrWhiteSpace(egoera)
-                    ? $"Sukaldeko egoera eguneratu da. Eskaera ID: {segmentuak[2]}"
-                    : $"Sukaldeko egoera eguneratu da. Eskaera ID: {segmentuak[2]}, Egoera: {egoera}";
+                    ? $"Sukaldeko egoera eguneratu da. Eskaera IDa: {segmentuak[2]}"
+                    : $"Sukaldeko egoera eguneratu da. Eskaera IDa: {segmentuak[2]}, Egoera berria: {egoera}";
             }
 
             if (method == "PUT" && segmentuak.Length >= 3)
@@ -255,7 +260,7 @@ namespace ErronkaApi.Middlewareak
                 string? komentsalak = LortuInt(bodyJson, "Komensalak", "komensalak")?.ToString();
                 string? produktuak = LortuProduktuenLaburpena(bodyJson);
 
-                var zatiak = new List<string> { $"Eskaera ID: {segmentuak[2]}" };
+                var zatiak = new List<string> { $"Eskaera IDa: {segmentuak[2]}" };
                 if (!string.IsNullOrWhiteSpace(komentsalak)) zatiak.Add($"Komentsalak: {komentsalak}");
                 if (!string.IsNullOrWhiteSpace(produktuak)) zatiak.Add($"Produktuak: {produktuak}");
 
@@ -265,37 +270,37 @@ namespace ErronkaApi.Middlewareak
             if (method == "POST" && segmentuak.Length >= 4 &&
                 segmentuak[3].Equals("ordainduEskaera", StringComparison.OrdinalIgnoreCase))
             {
-                return $"Eskaera ordainketara bidali da. Eskaera ID: {segmentuak[2]}";
+                return $"Eskaera ordainketara bidali da. Eskaera IDa: {segmentuak[2]}";
             }
 
             if (method == "POST" && segmentuak.Length >= 4 &&
                 segmentuak[3].Equals("sortuFaktura", StringComparison.OrdinalIgnoreCase))
             {
-                return $"Faktura sortuta. Eskaera ID: {segmentuak[2]}";
+                return $"Faktura sortu da. Eskaera IDa: {segmentuak[2]}";
             }
 
-            return "Eskaera ekintza eginda";
+            return "Eskaerekin lotutako ekintza egin da";
         }
 
         private static string SortuFakturaMezua(string method, string[] segmentuak, JsonElement? bodyJson)
         {
             if (method == "GET" && segmentuak.Length == 2)
-                return "Faktura zerrenda kontsultatuta";
+                return "Faktura zerrenda kontsultatu da";
 
             if (method == "GET" && segmentuak.Length >= 4 &&
                 segmentuak[2].Equals("erreserba", StringComparison.OrdinalIgnoreCase))
-                return $"Erreserbaren faktura kontsultatuta. Erreserba ID: {segmentuak[3]}";
+                return $"Erreserbaren faktura kontsultatu da. Erreserba IDa: {segmentuak[3]}";
 
             if (method == "GET" && segmentuak.Length >= 3)
-                return $"Faktura kontsultatuta. Faktura ID: {segmentuak[2]}";
+                return $"Faktura kontsultatu da. Faktura IDa: {segmentuak[2]}";
 
             if (method == "POST" && segmentuak.Length >= 3 &&
                 segmentuak[2].Equals("sortu-erreserbatik", StringComparison.OrdinalIgnoreCase))
             {
                 string? erreserbaId = LortuInt(bodyJson, "ErreserbaId", "erreserbaId")?.ToString();
                 return string.IsNullOrWhiteSpace(erreserbaId)
-                    ? "Faktura sortu edo berreskuratu da erreserbatik"
-                    : $"Faktura sortu edo berreskuratu da erreserbatik. Erreserba ID: {erreserbaId}";
+                    ? "Erreserbatik faktura sortu edo berreskuratu da"
+                    : $"Erreserbatik faktura sortu edo berreskuratu da. Erreserba IDa: {erreserbaId}";
             }
 
             if (method == "POST" && segmentuak.Length >= 3 &&
@@ -314,45 +319,45 @@ namespace ErronkaApi.Middlewareak
             }
 
             if (method == "DELETE" && segmentuak.Length >= 3)
-                return $"Faktura ezabatu da. Faktura ID: {segmentuak[2]}";
+                return $"Faktura ezabatu da. Faktura IDa: {segmentuak[2]}";
 
-            return "Faktura ekintza eginda";
+            return "Fakturekin lotutako ekintza egin da";
         }
 
         private static string SortuCrudMezua(string izena, string method, string[] segmentuak)
         {
             return method switch
             {
-                "GET" when segmentuak.Length == 2 => $"{izena} zerrenda kontsultatuta",
-                "GET" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} kontsultatuta. ID: {segmentuak[2]}",
-                "POST" => $"{izena.TrimEnd('k')} sortuta",
-                "PUT" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} eguneratuta. ID: {segmentuak[2]}",
-                "DELETE" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} ezabatuta. ID: {segmentuak[2]}",
-                _ => $"{izena} ekintza eginda"
+                "GET" when segmentuak.Length == 2 => $"{izena} zerrenda kontsultatu da",
+                "GET" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} kontsultatu da. IDa: {segmentuak[2]}",
+                "POST" => $"{izena.TrimEnd('k')} sortu da",
+                "PUT" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} eguneratu da. IDa: {segmentuak[2]}",
+                "DELETE" when segmentuak.Length >= 3 => $"{izena.TrimEnd('k')} ezabatu da. IDa: {segmentuak[2]}",
+                _ => $"{izena} baliabidearekin lotutako ekintza egin da"
             };
         }
 
         private static string SortuErreserbaMezua(string method, string[] segmentuak)
         {
-            if (method == "GET" && segmentuak.Length == 2) return "Erreserbak kontsultatuta";
+            if (method == "GET" && segmentuak.Length == 2) return "Erreserbak kontsultatu dira";
             if (method == "GET" && segmentuak.Length >= 4 && segmentuak[2].Equals("data", StringComparison.OrdinalIgnoreCase))
-                return $"Erreserbak kontsultatuta dataren arabera. Data: {segmentuak[3]}";
-            if (method == "POST") return "Erreserba sortuta";
-            if (method == "PUT" && segmentuak.Length >= 3) return $"Erreserba eguneratuta. Erreserba ID: {segmentuak[2]}";
-            if (method == "DELETE" && segmentuak.Length >= 3) return $"Erreserba ezabatu da. Erreserba ID: {segmentuak[2]}";
+                return $"Erreserbak dataren arabera kontsultatu dira. Data: {segmentuak[3]}";
+            if (method == "POST") return "Erreserba sortu da";
+            if (method == "PUT" && segmentuak.Length >= 3) return $"Erreserba eguneratu da. Erreserba IDa: {segmentuak[2]}";
+            if (method == "DELETE" && segmentuak.Length >= 3) return $"Erreserba ezabatu da. Erreserba IDa: {segmentuak[2]}";
 
-            return "Erreserba ekintza eginda";
+            return "Erreserbekin lotutako ekintza egin da";
         }
 
         private static string SortuErreserbaMahaiMezua(string method, string[] segmentuak)
         {
-            if (method == "POST") return "Erreserbari mahaiak lotu zaizkio";
+            if (method == "POST") return "Mahaiak erreserbari lotu zaizkio";
             if (method == "GET" && segmentuak.Length >= 4 && segmentuak[2].Equals("erreserba", StringComparison.OrdinalIgnoreCase))
-                return $"Erreserbako mahaiak kontsultatuta. Erreserba ID: {segmentuak[3]}";
+                return $"Erreserbako mahaiak kontsultatu dira. Erreserba IDa: {segmentuak[3]}";
             if (method == "DELETE" && segmentuak.Length >= 4 && segmentuak[2].Equals("erreserba", StringComparison.OrdinalIgnoreCase))
-                return $"Erreserbako mahaiak ezabatu dira. Erreserba ID: {segmentuak[3]}";
+                return $"Erreserbako mahaiak ezabatu dira. Erreserba IDa: {segmentuak[3]}";
 
-            return "Erreserba-mahai ekintza eginda";
+            return "Erreserba-mahaiekin lotutako ekintza egin da";
         }
 
         private static string[] LortuPathSegmentuak(PathString path)
@@ -555,7 +560,7 @@ namespace ErronkaApi.Middlewareak
             return laburpena.Count == 0 ? null : string.Join(", ", laburpena);
         }
 
-        private static string? LortuErabiltzaileaBodytik(string body)
+        private static string? LortuErabiltzaileaBodytik(string body, ISessionFactory sessionFactory)
         {
             try
             {
@@ -569,7 +574,7 @@ namespace ErronkaApi.Middlewareak
 
                 int? erabiltzaileId = LortuInt(root, "erabiltzaileId", "langileaId", "ErabiltzaileId");
                 if (erabiltzaileId.HasValue)
-                    return $"id:{erabiltzaileId.Value}";
+                    return LortuErabiltzaileaIdtik(sessionFactory, erabiltzaileId.Value) ?? $"erabiltzailea#{erabiltzaileId.Value}";
             }
             catch
             {
@@ -577,6 +582,24 @@ namespace ErronkaApi.Middlewareak
             }
 
             return null;
+        }
+
+        private static string? LortuErabiltzaileaIdtik(ISessionFactory sessionFactory, int erabiltzaileId)
+        {
+            try
+            {
+                using var session = sessionFactory.OpenSession();
+                var erabiltzailea = session.Query<Erabiltzailea>()
+                    .FirstOrDefault(e => e.id == erabiltzaileId && !e.ezabatua);
+
+                return string.IsNullOrWhiteSpace(erabiltzailea?.erabiltzailea)
+                    ? null
+                    : erabiltzailea.erabiltzailea;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
