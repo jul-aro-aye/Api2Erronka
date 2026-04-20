@@ -32,3 +32,123 @@
 09:36:54 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 2
 09:36:54 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 9
 09:36:55 | Jon | Eskaera ordainketara bidali da. Eskaera IDa: 9
+13:29:08 | Jon | Saioa hasi du sisteman. Erabiltzailea: Jon
+13:29:15 | Jon | Txat baimena kontsultatu da. Erabiltzaile IDa: 2
+13:29:21 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:29:22 | Jon | Mahai zerrenda kontsultatu da
+13:29:22 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:36 | Jon | Mahai zerrenda kontsultatu da
+13:30:36 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:37 | Jon | Erreserba sortu da
+13:30:37 | Jon | Mahaiak erreserbari lotu zaizkio
+13:30:37 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:37 | Jon | Mahai zerrenda kontsultatu da
+13:30:37 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:37 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 11
+13:30:42 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+13:30:42 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:42 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+13:30:42 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:44 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Afaria)
+13:30:44 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:44 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Afaria)
+13:30:44 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:30:45 | Jon | Mahaiaren informazioa kontsultatu da. Mahaia IDa: 1 (Data: 2026-04-20, Txanda: Afaria)
+13:30:45 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+13:30:46 | Jon | Produktuak zerrenda kontsultatu da
+13:30:46 | Jon | Kategoriak zerrenda kontsultatu da
+13:30:46 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+13:30:49 | Jon | Ekintza ezin izan da osatu (400). Eskaera berria sortu da. Mahaia: 1, Komentsalak: 4, Produktuak: 82x1
+13:30:56 | Jon | Eskaera berria sortu da. Mahaia: 1, Komentsalak: 4, Produktuak: 1x1
+13:30:56 | Jon | Produktuak zerrenda kontsultatu da
+13:30:57 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+13:30:57 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 27
+13:31:23 | Jon | Eskaera ordainketara bidali da. Eskaera IDa: 27
+13:32:14 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+13:32:14 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:32:14 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+13:32:14 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:32:16 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Afaria)
+13:32:16 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:32:16 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Afaria)
+13:32:16 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+13:32:17 | Jon | Mahaiaren informazioa kontsultatu da. Mahaia IDa: 1 (Data: 2026-04-20, Txanda: Afaria)
+13:32:17 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+13:32:17 | Jon | Produktuak zerrenda kontsultatu da
+13:32:17 | Jon | Kategoriak zerrenda kontsultatu da
+13:32:17 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+13:32:17 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 27
+13:32:22 | Jon | Faktura sortu da. Eskaera IDa: 27
+13:32:24 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+14:19:59 | erabiltzaile ezezaguna | GET /api/erabiltzaileak/login egin da (200)
+14:22:31 | Jon | Saioa hasi du sisteman. Erabiltzailea: Jon
+14:22:33 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:22:33 | Jon | Mahai zerrenda kontsultatu da
+14:22:33 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:22:33 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 11
+14:22:36 | Jon | Mahai zerrenda kontsultatu da
+14:22:36 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:22:36 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 11
+14:22:36 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 11
+14:22:36 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 11
+14:22:38 | Jon | Erreserba ezabatu da. Erreserba IDa: 11
+14:22:39 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:22:39 | Jon | Mahai zerrenda kontsultatu da
+14:22:39 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:25:26 | Jon | Saioa hasi du sisteman. Erabiltzailea: Jon
+14:25:32 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:25:32 | Jon | Mahai zerrenda kontsultatu da
+14:25:32 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:25:52 | Jon | Mahai zerrenda kontsultatu da
+14:25:52 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:26:40 | Jon | Erreserba sortu da
+14:26:40 | Jon | Mahaiak erreserbari lotu zaizkio
+14:26:41 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:26:41 | Jon | Mahai zerrenda kontsultatu da
+14:26:41 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:26:41 | Jon | Erreserbako mahaiak kontsultatu dira. Erreserba IDa: 12
+14:26:44 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:26:44 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:26:44 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:26:44 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:26:46 | Jon | Mahaiaren informazioa kontsultatu da. Mahaia IDa: 1 (Data: 2026-04-20, Txanda: Bazkaria)
+14:26:46 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+14:26:46 | Jon | Produktuak zerrenda kontsultatu da
+14:26:46 | Jon | Kategoriak zerrenda kontsultatu da
+14:26:46 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+14:26:54 | Jon | Eskaera berria sortu da. Mahaia: 1, Komentsalak: 4, Produktuak: 38x1
+14:26:55 | Jon | Produktuak zerrenda kontsultatu da
+14:26:55 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+14:26:55 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 28
+14:27:40 | Jon | Saioa hasi du sisteman. Erabiltzailea: Jon
+14:27:41 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:27:41 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:27:41 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:27:41 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:27:43 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:27:43 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:27:43 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:27:43 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:27:48 | Jon | Mahaiaren informazioa kontsultatu da. Mahaia IDa: 1 (Data: 2026-04-20, Txanda: Bazkaria)
+14:27:48 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+14:27:48 | Jon | Produktuak zerrenda kontsultatu da
+14:27:48 | Jon | Kategoriak zerrenda kontsultatu da
+14:27:48 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+14:27:48 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 28
+14:27:51 | Jon | Eskaera ordainketara bidali da. Eskaera IDa: 28
+14:28:17 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:28:17 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:28:17 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:28:17 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:28:18 | Jon | Mahaiaren informazioa kontsultatu da. Mahaia IDa: 1 (Data: 2026-04-20, Txanda: Bazkaria)
+14:28:18 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+14:28:18 | Jon | Produktuak zerrenda kontsultatu da
+14:28:18 | Jon | Kategoriak zerrenda kontsultatu da
+14:28:18 | Jon | Mahaiaren eskaera aktiboa kontsultatu da. Mahaia: 1
+14:28:18 | Jon | Eskaeraren produktuak kontsultatu dira. Eskaera IDa: 28
+14:28:21 | Jon | Faktura sortu da. Eskaera IDa: 28
+14:28:22 | Jon | Mahai honek ez dauka eskaera aktiborik. Mahaia: 1
+14:28:26 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:28:26 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20
+14:28:26 | Jon | Mahai zerrenda kontsultatu da (Data: 2026-04-20, Txanda: Bazkaria)
+14:28:26 | Jon | Erreserbak dataren arabera kontsultatu dira. Data: 2026-04-20

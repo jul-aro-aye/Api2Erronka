@@ -46,6 +46,7 @@ namespace ErronkaApi.Repositorioak
 
                 var users = session.Query<Erabiltzailea>()
                     .Where(e => !e.ezabatua)
+                    .Where(e => e.rola.id == 2)
                     .OrderBy(e => e.erabiltzailea)
                     .ToList();
 
