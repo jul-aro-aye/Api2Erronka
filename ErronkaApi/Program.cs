@@ -44,6 +44,7 @@ builder.Services.AddTransient<EskaeraRepository>();
 builder.Services.AddTransient<MahaiaRepository>();
 builder.Services.AddTransient<ErreserbaRepository>();
 builder.Services.AddTransient<FakturaRepository>();
+builder.Services.AddTransient<OdooRepository>();
 
 var app = builder.Build();
 
