@@ -4,7 +4,6 @@ using NHibernate.Linq;
 using NHSession = NHibernate.ISession;
 using NHFactory = NHibernate.ISessionFactory;
 using NHibernate;
-using System.Runtime.InteropServices;
 
 namespace ErronkaApi.Repositorioak
 {
@@ -129,6 +128,129 @@ namespace ErronkaApi.Repositorioak
         {
             public int ProduktuaId { get; set; }
             public int Kantitatea { get; set; }
+        }
+
+        private sealed class DeskontuDatuak
+        {
+            public string? Kodea { get; set; }
+            public decimal Portzentaia { get; set; }
+        }
+
+        private static decimal BiribilduDirua(decimal balioa)
+        {
+            return Math.Round(balioa, 2, MidpointRounding.AwayFromZero);
+        }
+
+        private static decimal NormalizatuDeskontuPortzentaia(decimal? deskontuPortzentaia)
+        {
+            if (!deskontuPortzentaia.HasValue)
+                return 0;
+
+            var balioa = deskontuPortzentaia.Value;
+            if (balioa < 0)
+                return 0;
+            if (balioa > 100)
+                return 100;
+
+            return BiribilduDirua(balioa);
+        }
+
+        private static string? GarbituDeskontuKodea(string? deskontuKodea)
+        {
+            var kodea = deskontuKodea?.Trim();
+            return string.IsNullOrWhiteSpace(kodea) ? null : kodea;
+        }
+
+        private void ZiurtatuDeskontuenTaula(NHSession session)
+        {
+            const string sql = @"
+                CREATE TABLE IF NOT EXISTS eskaera_deskontuak (
+                    id INT NOT NULL AUTO_INCREMENT,
+                    eskaera_id INT NOT NULL,
+                    kodea VARCHAR(120) NOT NULL,
+                    deskontu_portzentaia DECIMAL(10,2) NOT NULL,
+                    sortze_data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (id),
+                    UNIQUE KEY uq_eskaera_deskontuak_eskaera_id (eskaera_id),
+                    CONSTRAINT fk_eskaera_deskontuak_eskaera
+                        FOREIGN KEY (eskaera_id) REFERENCES eskaerak(id)
+                        ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+            session.CreateSQLQuery(sql).ExecuteUpdate();
+        }
+
+        private DeskontuDatuak LortuEskaerarenDeskontua(NHSession session, int eskaeraId)
+        {
+            ZiurtatuDeskontuenTaula(session);
+
+            const string sql = @"
+                SELECT kodea, deskontu_portzentaia
+                FROM eskaera_deskontuak
+                WHERE eskaera_id = :eskaeraId
+                LIMIT 1";
+
+            var lerroa = session.CreateSQLQuery(sql)
+                .SetParameter("eskaeraId", eskaeraId)
+                .List<object[]>()
+                .FirstOrDefault();
+
+            if (lerroa == null)
+                return new DeskontuDatuak();
+
+            return new DeskontuDatuak
+            {
+                Kodea = Convert.ToString(lerroa[0]),
+                Portzentaia = NormalizatuDeskontuPortzentaia(Convert.ToDecimal(lerroa[1]))
+            };
+        }
+
+        private void GordeEskaerarenDeskontua(
+            NHSession session,
+            int eskaeraId,
+            string? deskontuKodea,
+            decimal deskontuPortzentaia)
+        {
+            ZiurtatuDeskontuenTaula(session);
+
+            var kodeaGarbitua = GarbituDeskontuKodea(deskontuKodea);
+            var portzentaiaNormalizatua = NormalizatuDeskontuPortzentaia(deskontuPortzentaia);
+
+            if (kodeaGarbitua == null || portzentaiaNormalizatua <= 0)
+            {
+                const string ezabatuSql = @"
+                    DELETE FROM eskaera_deskontuak
+                    WHERE eskaera_id = :eskaeraId";
+
+                session.CreateSQLQuery(ezabatuSql)
+                    .SetParameter("eskaeraId", eskaeraId)
+                    .ExecuteUpdate();
+                return;
+            }
+
+            const string txertatuSql = @"
+                INSERT INTO eskaera_deskontuak (eskaera_id, kodea, deskontu_portzentaia, sortze_data)
+                VALUES (:eskaeraId, :kodea, :deskontuPortzentaia, NOW())
+                ON DUPLICATE KEY UPDATE
+                    kodea = VALUES(kodea),
+                    deskontu_portzentaia = VALUES(deskontu_portzentaia),
+                    sortze_data = NOW()";
+
+            session.CreateSQLQuery(txertatuSql)
+                .SetParameter("eskaeraId", eskaeraId)
+                .SetParameter("kodea", kodeaGarbitua)
+                .SetParameter("deskontuPortzentaia", portzentaiaNormalizatua)
+                .ExecuteUpdate();
+        }
+
+        private decimal KalkulatuDeskontuarekin(decimal azpitotala, decimal deskontuPortzentaia)
+        {
+            var portzentaiaNormalizatua = NormalizatuDeskontuPortzentaia(deskontuPortzentaia);
+            if (portzentaiaNormalizatua <= 0)
+                return BiribilduDirua(azpitotala);
+
+            var deskontuKopurua = BiribilduDirua(azpitotala * (portzentaiaNormalizatua / 100m));
+            return BiribilduDirua(Math.Max(0, azpitotala - deskontuKopurua));
         }
 
         private List<OsagaiBeharra> LortuOsagaiBeharrak(NHSession session, int produktuaId, int produktuKopurua)
@@ -297,7 +419,11 @@ namespace ErronkaApi.Repositorioak
 
         private void EguneratuFakturaTotala(NHSession session, int eskaeraId)
         {
-            var guztira = KalkulatuEskaeraGuztira(session, eskaeraId);
+            EguneratuFakturaTotala(session, eskaeraId, KalkulatuEskaeraGuztira(session, eskaeraId));
+        }
+
+        private void EguneratuFakturaTotala(NHSession session, int eskaeraId, decimal guztira)
+        {
             var fakturak = session.Query<Faktura>()
                 .Where(f => f.eskaeraId == eskaeraId)
                 .OrderBy(f => f.id)
@@ -311,7 +437,7 @@ namespace ErronkaApi.Repositorioak
                     eskaeraId = eskaeraId,
                     pdfIzena = string.Empty,
                     data = DateTime.Now,
-                    guztira = guztira
+                    guztira = BiribilduDirua(guztira)
                 };
 
                 session.Save(faktura);
@@ -322,12 +448,13 @@ namespace ErronkaApi.Repositorioak
                 session.Delete(soberan);
 
             faktura.data = DateTime.Now;
-            faktura.guztira = guztira;
+            faktura.guztira = BiribilduDirua(guztira);
             session.SaveOrUpdate(faktura);
         }
 
         private EskaeraDTO MapToEskaeraDTO(NHSession session, Eskaera e)
         {
+            var deskontua = LortuEskaerarenDeskontua(session, e.id);
             return new EskaeraDTO
             {
                 Id = e.id,
@@ -336,7 +463,9 @@ namespace ErronkaApi.Repositorioak
                 Komensalak = e.komensalak,
                 Data = e.sortzeData.ToString("yyyy-MM-dd HH:mm"),
                 Txanda = FormatTxanda(LortuEskaerarenTxanda(session, e)),
-                SukaldeaEgoera = e.sukaldeaEgoera
+                SukaldeaEgoera = e.sukaldeaEgoera,
+                DeskontuKodea = GarbituDeskontuKodea(deskontua.Kodea),
+                DeskontuPortzentaia = NormalizatuDeskontuPortzentaia(deskontua.Portzentaia)
             };
         }
 
@@ -659,6 +788,12 @@ namespace ErronkaApi.Repositorioak
         public virtual (bool success, string? error)
             OrdaintzeraBidali(int eskaeraId)
         {
+            return OrdaintzeraBidali(eskaeraId, null);
+        }
+
+        public virtual (bool success, string? error)
+            OrdaintzeraBidali(int eskaeraId, EskaeraOrdainduDTO? dto)
+        {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
 
@@ -667,6 +802,23 @@ namespace ErronkaApi.Repositorioak
                 var eskaera = GetEskaera(session, eskaeraId);
                 if (eskaera == null)
                     return (false, "Eskaera ez da aurkitu");
+
+                var deskontuPortzentaia = NormalizatuDeskontuPortzentaia(dto?.DeskontuPortzentaia);
+                var deskontuKodea = GarbituDeskontuKodea(dto?.DeskontuKodea);
+
+                if (deskontuPortzentaia > 0 && deskontuKodea == null)
+                    return (false, "Deskontu kodea behar da deskontua aplikatzeko");
+
+                if (deskontuPortzentaia == 0)
+                    deskontuKodea = null;
+
+                var azpitotala = KalkulatuEskaeraGuztira(session, eskaeraId);
+                var guztira = deskontuPortzentaia > 0
+                    ? KalkulatuDeskontuarekin(azpitotala, deskontuPortzentaia)
+                    : BiribilduDirua(azpitotala);
+
+                GordeEskaerarenDeskontua(session, eskaeraId, deskontuKodea, deskontuPortzentaia);
+                EguneratuFakturaTotala(session, eskaeraId, guztira);
 
                 eskaera.egoera = "ordainketa_pendiente";
                 session.Update(eskaera);
@@ -696,7 +848,12 @@ namespace ErronkaApi.Repositorioak
                 var produktuak = session.Query<EskaeraProduktuak>()
                     .Where(p => p.Eskaera.id == eskaeraId)
                     .ToList();
-                decimal total = 0;
+                var deskontua = LortuEskaerarenDeskontua(session, eskaeraId);
+                var deskontuPortzentaia = NormalizatuDeskontuPortzentaia(deskontua.Portzentaia);
+                var deskontuKodea = GarbituDeskontuKodea(deskontua.Kodea);
+                var badagoDeskontua = deskontuPortzentaia > 0 && deskontuKodea != null;
+
+                decimal azpitotala = 0;
 
                 string escritorio = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 string carpetaFakturak = Path.Combine(escritorio, "fakturak");
@@ -727,16 +884,31 @@ namespace ErronkaApi.Repositorioak
                     foreach (var p in produktuak)
                     {
                         string produktuIzena = p.Produktua?.izena ?? "Ezezaguna";
-                        decimal prezioa = p.PrezioUnitarioa;
+                        decimal prezioa = BiribilduDirua(p.PrezioUnitarioa);
                         int kantitatea = p.Kantitatea;
-                        decimal lineaTotala = prezioa * kantitatea;
-                        total += lineaTotala;
+                        decimal lineaTotala = BiribilduDirua(prezioa * kantitatea);
+                        azpitotala += lineaTotala;
+                        var prezioAplikatua = badagoDeskontua
+                            ? BiribilduDirua(prezioa * (1 - (deskontuPortzentaia / 100m)))
+                            : prezioa;
+                        var lineaTotalaAplikatua = BiribilduDirua(prezioAplikatua * kantitatea);
 
                         doc.Add(new iTextSharp.text.Paragraph(produktuIzena, normalFont) { SpacingAfter = 1f });
-                        doc.Add(new iTextSharp.text.Paragraph($"{kantitatea} x {prezioa:C}    {lineaTotala:C}", normalFont) { SpacingAfter = 3f });
+                        doc.Add(new iTextSharp.text.Paragraph($"{kantitatea} x {prezioAplikatua:C}    {lineaTotalaAplikatua:C}", normalFont) { SpacingAfter = 3f });
                     }
 
+                    azpitotala = BiribilduDirua(azpitotala);
+                    var total = badagoDeskontua
+                        ? KalkulatuDeskontuarekin(azpitotala, deskontuPortzentaia)
+                        : azpitotala;
+                    var deskontuKopurua = BiribilduDirua(Math.Max(0, azpitotala - total));
+
                     doc.Add(new iTextSharp.text.Paragraph(" ", normalFont));
+                    if (badagoDeskontua)
+                    {
+                        doc.Add(new iTextSharp.text.Paragraph($"AZPITOTALA: {azpitotala:C}", normalFont) { Alignment = iTextSharp.text.Element.ALIGN_RIGHT, SpacingBefore = 2f });
+                        doc.Add(new iTextSharp.text.Paragraph($"DESKONTUA ({deskontuKodea} - {deskontuPortzentaia:0.##}%): -{deskontuKopurua:C}", normalFont) { Alignment = iTextSharp.text.Element.ALIGN_RIGHT, SpacingBefore = 2f });
+                    }
                     doc.Add(new iTextSharp.text.Paragraph($"TOTALA: {total:C}", titleFont) { Alignment = iTextSharp.text.Element.ALIGN_RIGHT, SpacingBefore = 5f });
                     doc.Add(new iTextSharp.text.Paragraph("Prezioak BEZ barne daude", normalFont) { Alignment = iTextSharp.text.Element.ALIGN_RIGHT, SpacingBefore = 2f });
 
@@ -745,24 +917,22 @@ namespace ErronkaApi.Repositorioak
                     doc.Add(new iTextSharp.text.Paragraph("ESKERRIK ASKO", normalFont) { Alignment = iTextSharp.text.Element.ALIGN_CENTER, SpacingBefore = 8f });
 
                     doc.Close();
-                }
+                    var faktura = session.Query<Faktura>()
+                        .FirstOrDefault(f => f.eskaeraId == eskaeraId);
 
-                var faktura = session.Query<Faktura>()
-                    .FirstOrDefault(f => f.eskaeraId == eskaeraId);
-
-                if (faktura == null)
-                {
-                    faktura = new Faktura
+                    if (faktura == null)
                     {
-                        eskaeraId = eskaeraId
-                    };
+                        faktura = new Faktura
+                        {
+                            eskaeraId = eskaeraId
+                        };
+                    }
+
+                    faktura.pdfIzena = filename;
+                    faktura.data = DateTime.Now;
+                    faktura.guztira = total;
+                    session.SaveOrUpdate(faktura);
                 }
-
-                faktura.pdfIzena = filename;
-                faktura.data = DateTime.Now;
-                faktura.guztira = total;
-
-                session.SaveOrUpdate(faktura);
 
                 eskaera.egoera = "itxita";
                 eskaera.itxieraData = DateTime.Now;
@@ -785,13 +955,7 @@ namespace ErronkaApi.Repositorioak
                     {
                         mahaia.egoera = "libre";
                         session.Update(mahaia);
-
-                        
                     }
-
-                    
-
-
                 }
 
                 tx.Commit();

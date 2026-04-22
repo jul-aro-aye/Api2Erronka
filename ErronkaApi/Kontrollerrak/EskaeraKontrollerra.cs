@@ -225,6 +225,29 @@ namespace ErronkaApi.Kontrollerrak
             });
         }
 
+        [HttpPost("{eskaeraId}/ordainduEskaeraDeskontuarekin")]
+        public IActionResult OrdainduEskaeraDeskontuarekin(int eskaeraId, [FromBody] EskaeraOrdainduDTO dto)
+        {
+            var (success, error) = _repo.OrdaintzeraBidali(eskaeraId, dto);
+
+            if (!success)
+            {
+                return NotFound(new ErantzunaDTO<string>
+                {
+                    Code = 404,
+                    Message = error,
+                    Datuak = null
+                });
+            }
+
+            return Ok(new ErantzunaDTO<string>
+            {
+                Code = 200,
+                Message = "Eskaera ordainketara bidalita",
+                Datuak = null
+            });
+        }
+
         [HttpPost("{eskaeraId}/sortuFaktura")]
         public IActionResult SortuFaktura(int eskaeraId)
         {

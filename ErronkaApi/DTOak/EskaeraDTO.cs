@@ -9,5 +9,7 @@
         public string Data { get; set; }
         public string Txanda { get; set; }
         public string SukaldeaEgoera { get; set; }
+        public string? DeskontuKodea { get; set; }
+        public decimal DeskontuPortzentaia { get; set; }
     }
 }
