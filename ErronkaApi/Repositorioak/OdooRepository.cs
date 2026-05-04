@@ -14,7 +14,7 @@ namespace ErronkaApi.Repositorioak
             _sessionFactory = sessionFactory;
         }
 
-        public (bool success, string? error, OdooSyncDTO? data) LortuSinkronizazioDatuak()
+        public virtual (bool success, string? error, OdooSyncDTO? data) LortuSinkronizazioDatuak()
         {
             try
             {

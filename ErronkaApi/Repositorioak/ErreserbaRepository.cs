@@ -14,7 +14,7 @@ namespace ErronkaApi.Repositorioak
             _sessionFactory = sessionFactory;
         }
 
-        public (bool success, string? error, List<ErreserbaDTO>? data) LortuErreserbak()
+        public virtual (bool success, string? error, List<ErreserbaDTO>? data) LortuErreserbak()
         {
             try
             {
@@ -36,7 +36,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, List<ErreserbaDTO>? data) LortuErreserbakDatarenArabera(DateTime data)
+        public virtual (bool success, string? error, List<ErreserbaDTO>? data) LortuErreserbakDatarenArabera(DateTime data)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, ErreserbaDTO? data) SortuErreserba(ErreserbaDTO dto)
+        public virtual (bool success, string? error, ErreserbaDTO? data) SortuErreserba(ErreserbaDTO dto)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -95,7 +95,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, ErreserbaDTO? data) EguneratuErreserba(int id, ErreserbaDTO dto)
+        public virtual (bool success, string? error, ErreserbaDTO? data) EguneratuErreserba(int id, ErreserbaDTO dto)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -146,7 +146,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error) EzabatuErreserba(int id)
+        public virtual (bool success, string? error) EzabatuErreserba(int id)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -168,7 +168,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, int? data) EzarriMahaia(int erreserbaId, int mahaiaId)
+        public virtual (bool success, string? error, int? data) EzarriMahaia(int erreserbaId, int mahaiaId)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -254,7 +254,7 @@ namespace ErronkaApi.Repositorioak
             return (true, null, mahaia);
         }
 
-        public (bool success, string? error, List<int>? data) LortuMahaiakErreserbarentzat(int erreserbaId)
+        public virtual (bool success, string? error, List<int>? data) LortuMahaiakErreserbarentzat(int erreserbaId)
         {
             try
             {

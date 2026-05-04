@@ -14,7 +14,7 @@ namespace ErronkaApi.Repositorioak
             _sessionFactory = sessionFactory;
         }
 
-        public (bool success, string? error, List<FakturaDTO>? data) LortuFakturak()
+        public virtual (bool success, string? error, List<FakturaDTO>? data) LortuFakturak()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, FakturaDTO? data) LortuFaktura(int id)
+        public virtual (bool success, string? error, FakturaDTO? data) LortuFaktura(int id)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, FakturaDTO? data) LortuFakturaErreserbarenArabera(int erreserbaId)
+        public virtual (bool success, string? error, FakturaDTO? data) LortuFakturaErreserbarenArabera(int erreserbaId)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, FakturaDTO? data) SortuEdoLortuFakturaErreserbatik(int erreserbaId)
+        public virtual (bool success, string? error, FakturaDTO? data) SortuEdoLortuFakturaErreserbatik(int erreserbaId)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -117,7 +117,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error) EzabatuFaktura(int id)
+        public virtual (bool success, string? error) EzabatuFaktura(int id)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
@@ -139,7 +139,7 @@ namespace ErronkaApi.Repositorioak
             }
         }
 
-        public (bool success, string? error, FakturaDTO? data) EguneratuTotala(int fakturaId, decimal gehikuntza)
+        public virtual (bool success, string? error, FakturaDTO? data) EguneratuTotala(int fakturaId, decimal gehikuntza)
         {
             using var session = _sessionFactory.OpenSession();
             using var tx = session.BeginTransaction();
