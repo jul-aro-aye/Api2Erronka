@@ -6,14 +6,17 @@ using ErronkaApi.Repositorioak;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.ListenAnyIP(5093);        // HTTP
-    options.ListenLocalhost(7236, listenOptions =>
+    builder.WebHost.ConfigureKestrel(options =>
     {
-        listenOptions.UseHttps();     // HTTPS
+        options.ListenAnyIP(5093);        // HTTP
+        options.ListenLocalhost(7236, listenOptions =>
+        {
+            listenOptions.UseHttps();     // HTTPS
+        });
     });
-});
+}
 
 // Add services to the container.
 

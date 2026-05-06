@@ -27,7 +27,7 @@ namespace ErronkaApi.NHibernate
                             .Server("localhost") // 192.168.1.10  localhost
                             .Database("erronka2") // tpv
                             .Username("root") // admin root
-                            .Password("1MG2024") // Taldea4 1MG2024
+                            .Password("2MG2024") // Taldea4 1MG2024
                         )
                 )
                 .Mappings(m =>
