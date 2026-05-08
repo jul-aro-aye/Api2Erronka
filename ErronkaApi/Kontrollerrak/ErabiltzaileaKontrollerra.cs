@@ -47,5 +47,42 @@ namespace ErronkaApi.Kontrollerrak
                 Datuak = datuak
             });
         }
+        [HttpPost]
+        public IActionResult SortuZerbitzaria([FromBody] ErabiltzaileaSortuDTO eskaera)
+        {
+            var (success, error, user) = _repo.SortuZerbitzaria(
+                eskaera.erabiltzailea,
+                eskaera.emaila,
+                eskaera.pasahitza,
+                eskaera.txat);
+
+            if (!success || user == null)
+            {
+                return BadRequest(new ErantzunaDTO<string>
+                {
+                    Code = 400,
+                    Message = error ?? "Errorea zerbitzaria sortzean",
+                    Datuak = null
+                });
+            }
+
+            return Ok(new ErantzunaDTO<ErabiltzaileaLoginDTO>
+            {
+                Code = 200,
+                Message = "Zerbitzaria zuzen sortu da",
+                Datuak = new List<ErabiltzaileaLoginDTO>
+                {
+                    new ErabiltzaileaLoginDTO
+                    {
+                        id = user.id,
+                        erabiltzailea = user.erabiltzailea,
+                        emaila = user.emaila,
+                        rolaId = user.rola?.id ?? 0,
+                        rolaIzena = user.rola?.izena ?? string.Empty,
+                        txat = user.txat
+                    }
+                }
+            });
+        }
     }
 }
